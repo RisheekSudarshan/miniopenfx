@@ -1,0 +1,6 @@
+200 ok
+201 created
+401 session expired
+403 Unauthorized
+409 resource already exists
+503 DB down

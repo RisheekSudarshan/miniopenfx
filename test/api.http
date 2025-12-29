@@ -1,0 +1,99 @@
+### Health Check
+GET http://localhost:3000/health
+
+
+#### Signup
+POST http://localhost:3000/auth/signup
+Content-Type: application/json
+
+{
+  "email": "admin@admin.com",
+  "password": "admin123"
+}
+
+
+### Login
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "vscode@test.com",
+  "password": "pass123"
+}
+
+
+
+
+### Replace token
+# user token
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlNjZkM2FiNi1lY2Q1LTRmZTctOTcxYS00ZWJlYmE0NTlmNWMiLCJzZXNzaW9uSWQiOiJkMWM5NGM2NS00Yjk2LTRhMjMtOGNiYi00MGY3MWJiNTYwODciLCJpYXQiOjE3NjcwMDExNjYsImV4cCI6MTc2NzA4NzU2Nn0.hLhaGU20ryZYh-Cv4ChIXy9CxCXXK5VDE9bPmMXYw18
+
+# admin token
+#@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxNTkxZmE2YS0yNjJiLTQxMTctODdkNi1kYWIzYmJkOGE4MGEiLCJzZXNzaW9uSWQiOiJhM2M1MGU3ZS1jNDk0LTRlMGItOTBlMC0wOWRlYjc3NGY1ZjIiLCJpYXQiOjE3NjY5OTg2MzQsImV4cCI6MTc2NzA4NTAzNH0.jg1g32hkLfpUP9kodMoqOy3VEv4yRW5eMzv-Q8jFMpU
+
+### Create Quote
+POST http://localhost:3000/quotes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "pair": "INRUSD",
+  "side": "BUY",
+  "amount": 10
+}
+
+### Replace Quoteid
+@quoteid = f3ae03e8-1f33-4750-beb9-1c15f400cdaf
+### Execute Self Trade
+POST http://localhost:3000/trades/self
+Authorization: Bearer {{token}}
+Idempotency-Key: {{quoteid}}
+Content-Type: application/json
+
+{
+  "quoteId": "{{quoteid}}",
+  "amount": 10
+}
+
+### Execute Other Trade
+# UserIds
+# @user = 64626faf-0bfd-493e-b830-3ec800e23344 
+# @user = a3d7e3f3-ae0b-4a3d-b6dc-54e32d0fa59d 
+ @user = e66d3ab6-ecd5-4fe7-971a-4ebeba459f5c 
+# @user = bf6eed57-36b7-434e-a22d-a88291d52bff 
+
+# @reciever = 64626faf-0bfd-493e-b830-3ec800e23344 
+# @reciever = a3d7e3f3-ae0b-4a3d-b6dc-54e32d0fa59d 
+ @reciever = e66d3ab6-ecd5-4fe7-971a-4ebeba459f5c 
+# @reciever = bf6eed57-36b7-434e-a22d-a88291d52bff 
+
+POST http://localhost:3000/trades/others
+Authorization: Bearer {{token}}
+Idempotency-key: {{quoteid}}
+Content-Type: application/application/json
+
+{
+  "quoteId": "{{quoteid}}",
+  "amount": 10,
+  "reciverId": "{{reciever}}"
+  
+}
+
+### Get Balances
+GET http://localhost:3000/balances
+Authorization: Bearer {{token}}
+
+### Add Credits
+
+POST http://localhost:3000/dev/addMoney
+Authorization: Bearer {{token}}
+
+{
+  "currency": "USD",
+  "amount": 100,
+  "reciverId": "{{user}}"
+}
+
+### Get history
+GET http://localhost:3000/history
+Authorization: Bearer {{token}}

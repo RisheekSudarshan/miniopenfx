@@ -8,7 +8,19 @@ export async function authMiddleware(
   next: () => Promise<void>
 ) {
   const auth = c.req.header('Authorization')
-  if (!auth) return c.json({ error: 'Unauthorized' }, 401)
+  const incomingId = c.req.header('x-request-id') ||c.req.header('x-correlation-id')
+
+  if (!auth) return c.json(       // Token not present
+    {
+      "success": false,
+      "error": {
+        "httpStatus": 401,
+        "code": "AUTH_UNAUTHORIZED",
+        "message": "Unauthorized",
+        "requestId": incomingId,
+        "details": {}
+      }
+    },401)
 
   const token = auth.replace('Bearer ', '')
   const payload: any = jwt.verify(token, process.env.JWT_SECRET!)
@@ -18,10 +30,25 @@ export async function authMiddleware(
     [payload.sessionId]
   )
 
-  if (res.rowCount === 0) return c.json({ error: 'Session expired' }, 401)
+  const role = await pool.query(
+    'SELECT role FROM users WHERE id=$1',
+    [payload.userId]
+  )
 
-  // ✅ now TypeScript knows this is valid
+  if (res.rowCount === 0) return c.json(   //token expired
+    {
+      "success": false,
+      "error": {
+        "httpStatus": 401,
+        "code": "AUTH_TOKEN_EXPIRED",
+        "message": "Session Expired",
+        "requestId": incomingId,
+        "details": {}
+      }
+    },401)
+
   c.set('userId', payload.userId)
+  c.set('userRole', role.rows[0].role)
 
   await next()
 }

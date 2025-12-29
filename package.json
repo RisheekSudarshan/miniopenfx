@@ -2,7 +2,8 @@
   "name": "miniopenfx",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch src/server.ts",
+    "test": "vitest run",
     "build": "tsc",
     "start": "node dist/index.js"
   },
@@ -21,7 +22,10 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.11.17",
     "@types/pg": "^8.16.0",
+    "@types/supertest": "^6.0.3",
+    "supertest": "^7.1.4",
     "tsx": "^4.21.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^4.0.16"
   }
 }
