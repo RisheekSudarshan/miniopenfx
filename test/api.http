@@ -43,7 +43,7 @@ Content-Type: application/json
 }
 
 ### Replace Quoteid
-@quoteid = 4f00e765-e563-4d15-99ee-3a412aa44b2b
+@quoteid = 79d69d53-ddc7-4965-8b33-6a91565ff21a
 ### Execute Self Trade
 POST http://localhost:3000/trades/self
 Authorization: Bearer {{token}}
@@ -64,8 +64,8 @@ Content-Type: application/json
 
 # @reciever = 64626faf-0bfd-493e-b830-3ec800e23344 
 # @reciever = a3d7e3f3-ae0b-4a3d-b6dc-54e32d0fa59d 
- @reciever = e66d3ab6-ecd5-4fe7-971a-4ebeba459f5c 
-# @reciever = bf6eed57-36b7-434e-a22d-a88291d52bff 
+@reciever = e66d3ab6-ecd5-4fe7-971a-4ebeba459f5c 
+#@reciever = bf6eed57-36b7-434e-a22d-a88291d52bff 
 
 POST http://localhost:3000/trades/others
 Authorization: Bearer {{token}}
@@ -75,8 +75,7 @@ Content-Type: application/application/json
 {
   "quoteId": "{{quoteid}}",
   "amount": 10,
-  "reciverId": "{{reciever}}"
-  
+  "receiverId": "{{reciever}}"
 }
 
 ### Get Balances

@@ -22,7 +22,7 @@ export async function getUserBalances(userId: string) {
 }
 
 export async function upsertBalance(
-  tx: NodePgDatabase,
+  tx: any,
   user_id: string,
   currency: string,
   delta: number,
@@ -30,7 +30,7 @@ export async function upsertBalance(
   await tx
     .insert(balances)
     .values({
-      user_id,
+      user_id:user_id,
       currency,
       amount: delta,
     })

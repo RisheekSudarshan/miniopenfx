@@ -6,7 +6,7 @@ export async function quoteController(c: Context) {
   const { pair, side } = await c.req.json();
 
   const quote = await createQuoteService(userId, pair, side);
-
+  console.log(quote);
   return c.json(
     {
       success: true,

@@ -8,7 +8,6 @@ export async function authMiddleware(
   next: () => Promise<void>,
 ) {
   let auth = c.req.header("Authorization");
-  auth = auth?.replace("Bearer ", "");
   const incomingId =
     c.req.header("x-request-id") || c.req.header("x-correlation-id");
 
@@ -20,7 +19,7 @@ export async function authMiddleware(
         error: {
           httpStatus: 401,
           code: "AUTH_UNAUTHORIZED",
-          message: "Unauthorized",
+          message: "Unauthorized 1",
           requestId: incomingId,
           details: {},
         },

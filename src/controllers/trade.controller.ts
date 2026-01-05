@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import { trade } from "../services/trade.service.js";
 import { TradeResult } from "../types/trades.js";
-import { pool } from "../database/db.js";
+import { getTradeByIdempotencyKey } from "../models/trades.model.js";
 
 export async function selfTradeController(c: Context) {
   const userId = c.get("userId");
@@ -36,11 +36,8 @@ async function handleTradeResult(
 ) {
   switch (result) {
     case TradeResult.DUPLICATED: {
-      const dup = await pool.query(
-        "SELECT * FROM trades WHERE idempotency_key=$1",
-        [idempotencyKey],
-      );
-      return c.json(dup.rows[0], 409);
+      const dup = await getTradeByIdempotencyKey(idempotencyKey!);
+      return c.json(dup, 409);
     }
 
     case TradeResult.REJECTED:

@@ -18,7 +18,7 @@ describe("MiniOpenFX API Flow", () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        email: "admin@admin.com",
+        email: "admin34@admin.com",
         password: "admin123",
       }),
     });
@@ -31,8 +31,8 @@ describe("MiniOpenFX API Flow", () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        email: "admin@admin.com",
-        password: "admin123",
+        email: "vscode@test.com",
+        password: "pass123",
       }),
     });
 
@@ -41,18 +41,18 @@ describe("MiniOpenFX API Flow", () => {
     const body = await res.json();
     expect(body.data).toBeDefined();
 
-    token = body.data;
+    token = body.data.token;
   });
 
   it("Create quote", async () => {
     const res = await app.request("/quotes", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
+        "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        pair: "USDGBP",
+        pair: "INRUSD",
         side: "BUY",
         amount: 10,
       }),
@@ -70,7 +70,7 @@ describe("MiniOpenFX API Flow", () => {
     const res = await app.request("/trades/self", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
+        "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json",
         "Idempotency-Key": `${quoteId}`,
       },
@@ -84,19 +84,19 @@ describe("MiniOpenFX API Flow", () => {
     expect(res.status).toBe(201);
 
     const body = await res.json();
-    expect(body.status).toBeDefined();
+    expect(body.success).toBeDefined();
   });
 
   it("Get balances", async () => {
     const res = await app.request("/balances", {
       headers: {
-        Authorization: `Bearer ${token}`,
+        "Authorization": `Bearer ${token}`,
       },
     });
 
     expect(res.status).toBe(200);
 
     const body = await res.json();
-    expect(Array.isArray(body.data)).toBe(true);
+    expect(Array.isArray(body.data.balances)).toBe(true);
   });
 });

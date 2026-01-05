@@ -6,7 +6,7 @@ import { signupUserService, loginService } from "../services/auth.service.js";
 export async function signupController(c: Context) {
   const { email, password } = await c.req.json();
 
-  signupUserService(email, password);
+  await signupUserService(email, password);
 
   return success(c, { message: "User created" }, HttpStatus.CREATED);
 }
