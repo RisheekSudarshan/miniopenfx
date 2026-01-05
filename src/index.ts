@@ -2,13 +2,13 @@ import 'dotenv/config'
 import { Hono } from 'hono'
 import {serve} from '@hono/node-server'
 
-import authRoutes from './auth/routes.js'
-import quoteRoutes from './quotes/routes.js'
-import tradeRoutes from './trades/routes.js'
-import balanceRoutes from './balances/routes.js'
-import devRoutes from './dev/routes.js'
-import historyRoutes from './history/routes.js'
-import { pool } from './db.js'
+import authRoutes from './routes/auth/routes.js'
+import quoteRoutes from './routes/quotes/routes.js'
+import tradeRoutes from './routes/trades/routes.js'
+import balanceRoutes from './routes/balances/routes.js'
+import devRoutes from './routes/dev/routes.js'
+import historyRoutes from './routes/history/routes.js'
+import { pool } from './database/db.js'
 
 const app = new Hono()
 

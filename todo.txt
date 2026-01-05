@@ -1,19 +1,20 @@
 TODO:
 
-
 Write test cases for all apis
 Make it type lock
 Look into Unit testing
 Look into hosting it on a linux server
-add daily automated balance calculator
-Implement account/wallet id instead of using userid for taansfer
 Add filters for History
 need to assert the currencies and responses of the api in prices.ts
+Biome linter
+prettier
+
 
 
 
 Done:
 
+study about directory structure
 api to credit (dev)
     - if username not there
     - if username is present
@@ -25,10 +26,13 @@ api to transfer self
 api to transfer to others
 api to get balance
 api to get History
-Implement error codes for all cases
+Implement account/wallet id instead of using userid for transfer
+Drizzle-orm for DB
+add automated balance calculator
 
 tedious jobs:
 
 encapsulate every query in try and accept
 asssert every parameter to its data type
+Implement error codes for all cases
 

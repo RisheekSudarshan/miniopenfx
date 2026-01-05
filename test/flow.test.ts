@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import app from '../src/index.js'
+import { stringify } from 'querystring'
 
 describe('MiniOpenFX API Flow', () => {
   let token: string
@@ -19,8 +20,8 @@ describe('MiniOpenFX API Flow', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        email: 'vitest@test.com',
-        password: 'pass123',
+        email: 'admin@admin.com',
+        password: 'admin123',
       }),
     })
 
@@ -32,17 +33,17 @@ describe('MiniOpenFX API Flow', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        email: 'vscode@test.com',
-        password: 'pass123',
+        email: 'admin@admin.com',
+        password: 'admin123',
       }),
     })
 
     expect(res.status).toBe(200)
 
     const body = await res.json()
-    expect(body.token).toBeDefined()
+    expect(body.data).toBeDefined()
 
-    token = body.token
+    token = body.data
   })
 
   it('Create quote', async () => {
@@ -55,16 +56,16 @@ describe('MiniOpenFX API Flow', () => {
       body: JSON.stringify({
         pair: 'USDGBP',
         side: 'BUY',
-        amount: 100,
+        amount: 10,
       }),
     })
 
-    expect(res.status).toBe(200)
+    expect(res.status).toBe(201)
 
     const body = await res.json()
-    expect(body.id).toBeDefined()
+    expect(body.data.id).toBeDefined()
 
-    quoteId = body.id
+    quoteId = body.data.id
   })
 
   it('Execute trade (idempotent)', async () => {
@@ -77,11 +78,12 @@ describe('MiniOpenFX API Flow', () => {
       },
       body: JSON.stringify({
         quoteId,
-        amount: 100,
+        amount: 10,
       }),
     })
+    console.log(res)
 
-    expect(res.status).toBe(200)
+    expect(res.status).toBe(201)
 
     const body = await res.json()
     expect(body.status).toBeDefined()
@@ -97,6 +99,6 @@ describe('MiniOpenFX API Flow', () => {
     expect(res.status).toBe(200)
 
     const body = await res.json()
-    expect(Array.isArray(body)).toBe(true)
+    expect(Array.isArray(body.data)).toBe(true)
   })
 })

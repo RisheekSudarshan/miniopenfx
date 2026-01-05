@@ -26,10 +26,10 @@ Content-Type: application/json
 
 ### Replace token
 # user token
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlNjZkM2FiNi1lY2Q1LTRmZTctOTcxYS00ZWJlYmE0NTlmNWMiLCJzZXNzaW9uSWQiOiJkMWM5NGM2NS00Yjk2LTRhMjMtOGNiYi00MGY3MWJiNTYwODciLCJpYXQiOjE3NjcwMDExNjYsImV4cCI6MTc2NzA4NzU2Nn0.hLhaGU20ryZYh-Cv4ChIXy9CxCXXK5VDE9bPmMXYw18
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlNjZkM2FiNi1lY2Q1LTRmZTctOTcxYS00ZWJlYmE0NTlmNWMiLCJzZXNzaW9uSWQiOiI4ZWEwMzZiNC03Nzc0LTRmODUtYWMwOS1lODY2MTZjOGE0YTMiLCJpYXQiOjE3Njc1OTM5MzgsImV4cCI6MTc2NzY4MDMzOH0.ji_8ETAEAkUNw1hxosT5locRoiwnVrCFEDDKqXaAV80
 
 # admin token
-#@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxNTkxZmE2YS0yNjJiLTQxMTctODdkNi1kYWIzYmJkOGE4MGEiLCJzZXNzaW9uSWQiOiJhM2M1MGU3ZS1jNDk0LTRlMGItOTBlMC0wOWRlYjc3NGY1ZjIiLCJpYXQiOjE3NjY5OTg2MzQsImV4cCI6MTc2NzA4NTAzNH0.jg1g32hkLfpUP9kodMoqOy3VEv4yRW5eMzv-Q8jFMpU
+#token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxNTkxZmE2YS0yNjJiLTQxMTctODdkNi1kYWIzYmJkOGE4MGEiLCJzZXNzaW9uSWQiOiJhM2M1MGU3ZS1jNDk0LTRlMGItOTBlMC0wOWRlYjc3NGY1ZjIiLCJpYXQiOjE3NjY5OTg2MzQsImV4cCI6MTc2NzA4NTAzNH0.jg1g32hkLfpUP9kodMoqOy3VEv4yRW5eMzv-Q8jFMpU
 
 ### Create Quote
 POST http://localhost:3000/quotes
@@ -39,11 +39,11 @@ Content-Type: application/json
 {
   "pair": "INRUSD",
   "side": "BUY",
-  "amount": 10
+  "amount": 100
 }
 
 ### Replace Quoteid
-@quoteid = f3ae03e8-1f33-4750-beb9-1c15f400cdaf
+@quoteid = 4f00e765-e563-4d15-99ee-3a412aa44b2b
 ### Execute Self Trade
 POST http://localhost:3000/trades/self
 Authorization: Bearer {{token}}
@@ -59,8 +59,8 @@ Content-Type: application/json
 # UserIds
 # @user = 64626faf-0bfd-493e-b830-3ec800e23344 
 # @user = a3d7e3f3-ae0b-4a3d-b6dc-54e32d0fa59d 
- @user = e66d3ab6-ecd5-4fe7-971a-4ebeba459f5c 
-# @user = bf6eed57-36b7-434e-a22d-a88291d52bff 
+# @user = e66d3ab6-ecd5-4fe7-971a-4ebeba459f5c 
+ @user = bf6eed57-36b7-434e-a22d-a88291d52bff 
 
 # @reciever = 64626faf-0bfd-493e-b830-3ec800e23344 
 # @reciever = a3d7e3f3-ae0b-4a3d-b6dc-54e32d0fa59d 
