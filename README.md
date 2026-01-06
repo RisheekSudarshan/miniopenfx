@@ -1,4 +1,10 @@
 ```
+dependencies:
+PostreSQL
+Nodejs
+
+
+```
 npm install
 npm run dev
 ```

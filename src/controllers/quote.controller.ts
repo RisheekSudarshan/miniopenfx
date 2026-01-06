@@ -1,17 +1,11 @@
 import { Context } from "hono";
 import { createQuoteService } from "../services/quote.service.js";
+import { success } from "../utilities/response.js";
 
 export async function quoteController(c: Context) {
   const userId = c.get("userId");
   const { pair, side } = await c.req.json();
 
   const quote = await createQuoteService(userId, pair, side);
-  console.log(quote);
-  return c.json(
-    {
-      success: true,
-      data: quote,
-    },
-    201,
-  );
+  return success(c, quote, 201);
 }

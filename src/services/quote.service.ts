@@ -1,30 +1,31 @@
 import { isFresh, refreshPrice, getPrice } from "./price.service.js";
 import { createQuote } from "../models/quotes.model.js";
+import { ErrorCode } from "../errors/error_codes.js";
+import { quoteType } from "../types/types.js";
 
-const BUY_SPREAD = 0.0002;
-const SELL_SPREAD = 0.0002;
+const BUY_SPREAD: number = 0.0002;
+const SELL_SPREAD: number = 0.0002;
 
 export async function createQuoteService(
   userId: string,
   pair: string,
   side: "BUY" | "SELL",
-) {
+): Promise<quoteType> {
   if (!isFresh(pair)) {
     await refreshPrice(pair);
   }
 
-  const market = getPrice(pair);
+  const market: number|null = getPrice(pair);
   if (market === null) {
-    throw new Error("MARKET_PRICE_UNAVAILABLE");
+    throw new Error(ErrorCode.MARKET_PRICE_UNAVAILABLE);
   }
 
-  const rate =
-    side === "BUY" ? market * (1 + BUY_SPREAD) : market * (1 - SELL_SPREAD);
+  const rate:number = side === "BUY" ? market * (1 + BUY_SPREAD) : market * (1 - SELL_SPREAD);
 
-  return createQuote({
+  return await createQuote({
     userId,
     pair,
     side,
-    rate,
+    rate
   });
 }

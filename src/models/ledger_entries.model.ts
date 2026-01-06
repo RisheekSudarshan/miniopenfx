@@ -1,6 +1,7 @@
 import { pgTable, decimal, uuid, text, timestamp } from "drizzle-orm/pg-core";
 import { db } from "../database/client";
 import { eq } from "drizzle-orm";
+import { LedgerEntryType } from "../types/types";
 
 export const legder_entries = pgTable("ledger_entries", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -22,8 +23,8 @@ export async function createLedgerEntry(data: {
   delta: number;
   reason: string;
   receiverId: string;
-}) {
-  const [entry] = await db
+}): Promise<LedgerEntryType> {
+  const [entry]: LedgerEntryType[] = await db
     .insert(legder_entries)
     .values({
       user_id: data.userId,
@@ -44,8 +45,8 @@ export async function createLedgerEntry(data: {
   return entry;
 }
 
-export async function getLedgerEntriesByUserId(userId: string) {
-  const entries = await db
+export async function getLedgerEntriesByUserId(userId: string): Promise<LedgerEntryType[]> {
+  const entries: LedgerEntryType[] = await db
     .select()
     .from(legder_entries)
     .where(eq(legder_entries.user_id, userId));

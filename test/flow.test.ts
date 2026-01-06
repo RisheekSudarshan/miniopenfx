@@ -52,9 +52,9 @@ describe("MiniOpenFX API Flow", () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        pair: "INRUSD",
+        pair: "USDINR",
         side: "BUY",
-        amount: 10,
+        amount: 1,
       }),
     });
 
@@ -84,6 +84,7 @@ describe("MiniOpenFX API Flow", () => {
     expect(res.status).toBe(201);
 
     const body = await res.json();
+    console.log(body)
     expect(body.success).toBeDefined();
   });
 

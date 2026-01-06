@@ -1,24 +1,24 @@
 TODO:
 
 Write test cases for all apis
-Make it type lock
 Look into Unit testing
 Look into hosting it on a linux server
 Add filters for History
 need to assert the currencies and responses of the api in prices.ts
-Biome linter
-prettier
-have an error handling middleware
+
 
 
 
 Done:
 
+Make it type lock
+Biome linter
+prettier
+have error handling 
 study about directory structure
 api to credit (dev)
     - if username not there
     - if username is present
-    if sql injection
 api to login
 api to signin
 api to get a qoute
@@ -32,7 +32,4 @@ add automated balance calculator
 
 tedious jobs:
 
-encapsulate every query in try and accept
-asssert every parameter to its data type
-Implement error codes for all cases
 

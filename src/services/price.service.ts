@@ -5,9 +5,9 @@ const CACHE_TTL_MS = 3000;
 
 const priceCache: Record<string, PriceEntry> = {};
 
-export async function refreshPrice(pair: string) {
+export async function refreshPrice(pair: string):Promise<number> {
   const { base, quote } = parsePair(pair);
-  const res = await fetch(
+  const res: any = await fetch(
     `https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=${base},${quote}`,
   );
   const data:any = await res.json();
@@ -24,13 +24,13 @@ export async function refreshPrice(pair: string) {
     throw new Error("Invalid CoinGecko response");
   }
 
-  const rate = data["tether"][quotecur] / data["tether"][basecur];
+  const rate:number = data["tether"][quotecur] / data["tether"][basecur];
   setPrice(pair, rate);
   return rate;
 }
 
 export function isFresh(pair: string): boolean {
-  const entry = priceCache[pair];
+  const entry:PriceEntry = priceCache[pair];
   if (!entry) return false;
   return Date.now() - entry.ts < CACHE_TTL_MS;
 }
@@ -39,15 +39,15 @@ export function getPrice(pair: string): number | null {
   return priceCache[pair]?.rate ?? null;
 }
 
-export function setPrice(pair: string, rate: number) {
+export function setPrice(pair: string, rate: number): void {
   priceCache[pair] = {
     rate,
     ts: Date.now(),
   };
 }
 
-function parsePair(pair: string) {
-  const symbol = pair.replace("/", "");
+function parsePair(pair: string):{base:string, quote:string} {
+  const symbol:string = pair.replace("/", "");
   if (symbol.length !== 6) {
     throw new Error(`Invalid pair: ${pair}`);
   }

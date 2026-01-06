@@ -1,5 +1,5 @@
 import { success } from "../utilities/response.js";
-import { HttpStatus } from "../types/http.js";
+import { HttpStatus } from "../utilities/http.js";
 import { Context } from "hono";
 import { signupUserService, loginService } from "../services/auth.service.js";
 

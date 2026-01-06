@@ -1,7 +1,7 @@
 import { pgTable, decimal, text, uuid } from "drizzle-orm/pg-core";
 import { db } from "../database/client.js";
 import { eq, sql } from "drizzle-orm";
-import type { NodePgDatabase } from "drizzle-orm/node-postgres/driver.js";
+import { userBalanceType } from "../types/types.js";
 
 export const balances = pgTable("balances", {
   user_id: uuid("user_id").notNull().primaryKey(),
@@ -13,8 +13,8 @@ export const balances = pgTable("balances", {
   }).notNull(),
 });
 
-export async function getUserBalances(userId: string) {
-  const userBalances = await db
+export async function getUserBalances(userId: string): Promise<userBalanceType[]> {
+  const userBalances: userBalanceType[] = await db
     .select()
     .from(balances)
     .where(eq(balances.user_id, userId));
@@ -26,7 +26,7 @@ export async function upsertBalance(
   user_id: string,
   currency: string,
   delta: number,
-) {
+): Promise<void> {
   await tx
     .insert(balances)
     .values({
@@ -40,5 +40,4 @@ export async function upsertBalance(
         amount: sql`${balances.amount} + ${delta}`,
       },
     })
-    .returning({ amount: balances.amount });
 }

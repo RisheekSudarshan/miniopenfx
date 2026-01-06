@@ -1,6 +1,7 @@
 import { pgTable, uuid, text, timestamp } from "drizzle-orm/pg-core";
 import { eq } from "drizzle-orm";
 import { db } from "../database/client";
+import { userType } from "../types/types";
 
 export const users = pgTable("users", {
   id: uuid("id").notNull().defaultRandom().primaryKey(),
@@ -10,21 +11,21 @@ export const users = pgTable("users", {
   created_at: timestamp("created_at").notNull().defaultNow(),
 });
 
-export async function getUserByEmail(email: string) {
-  const user = await db
+export async function getUserByEmail(email: string): Promise<userType> {
+  const [user]:userType[] = await db
     .select()
     .from(users)
     .where(eq(users.email, email))
     .limit(1);
-  return user[0];
+  return user;
 }
 
 export async function createUser(
   email: string,
   passwordHash: string,
   role: string,
-) {
-  const newUser = await db
+):Promise<userType> {
+  const [newUser] = await db
     .insert(users)
     .values({
       email,
@@ -32,14 +33,14 @@ export async function createUser(
       role,
     })
     .returning();
-  return newUser[0];
+  return newUser;
 }
 
-export async function getUserById(userId: string) {
-  const user = await db
+export async function getUserById(userId: string):Promise<userType> {
+  const [user]:userType[] = await db
     .select()
     .from(users)
     .where(eq(users.id, userId))
     .limit(1);
-  return user[0];
+  return user;
 }

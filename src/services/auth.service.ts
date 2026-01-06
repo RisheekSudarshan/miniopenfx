@@ -1,9 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { v4 as uuid } from "uuid";
-import { HttpStatus } from "../types/http.js";
-import { ErrorCode } from "../types/error_codes.js";
-import { AppError } from "../errors/app_error.js";
+import { ErrorCode } from "../errors/error_codes.js";
 import { getUserByEmail, createUser } from "../models/users.model.js";
 import type { userdata } from "../types/types.js";
 import { createSession } from "../models/sessions.model.js";
@@ -14,11 +12,7 @@ export async function signupUserService(
 ): Promise<userdata> {
   const existingUser = await getUserByEmail(email);
   if (existingUser) {
-    throw new AppError(
-      HttpStatus.CONFLICT,
-      ErrorCode.RESOURCE_ALREADY_EXISTS,
-      "User already exists",
-    );
+    throw new Error(ErrorCode.RESOURCE_ALREADY_EXISTS)
   }
 
   const hash = await bcrypt.hash(password, 10);
@@ -32,19 +26,11 @@ export async function loginService(
 ): Promise<string> {
   const user = await getUserByEmail(email);
   if (!user) {
-    throw new AppError(
-      HttpStatus.UNAUTHORIZED,
-      ErrorCode.INVALID_CREDENTIALS,
-      "Invalid username or password",
-    );
+    throw new Error(ErrorCode.INVALID_CREDENTIALS)
   }
   const ok = await bcrypt.compare(password, user.password_hash);
   if (!ok) {
-    throw new AppError(
-      HttpStatus.UNAUTHORIZED,
-      ErrorCode.INVALID_CREDENTIALS,
-      "Invalid username or password",
-    );
+    throw new Error(ErrorCode.INVALID_CREDENTIALS)
   }
   const sessionId = uuid();
   const token = jwt.sign(
@@ -56,7 +42,7 @@ export async function loginService(
     { expiresIn: "1d" },
   );
   const d = new Date();
-  createSession(sessionId, user.id, new Date(d.setDate(d.getDate() + 1)));
+  await createSession(sessionId, user.id, new Date(d.setDate(d.getDate() + 1)));
 
   return token;
 }
