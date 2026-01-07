@@ -45,7 +45,7 @@ export async function loginService(
     { expiresIn: "1d" },
   );
   const d = new Date();
-  await createSession(sessionId, user.id, new Date(d.setDate(d.getDate() + 1)));
+  await createSession(db, sessionId, user.id, new Date(d.setDate(d.getDate() + 1)));
 
   return token;
 }
