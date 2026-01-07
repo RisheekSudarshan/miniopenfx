@@ -1,9 +1,10 @@
 import { timestamp, pgTable, text, uuid } from "drizzle-orm/pg-core";
-import { db } from "../database/client.js";
 import { eq } from "drizzle-orm";
-import { tradeType
+import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
+import type { tradeType } from "../types/types.js";
 
- } from "../types/types.js";
+type DbLike = NeonHttpDatabase<any>;
+
 export const trades = pgTable("trades", {
   id: uuid("id").notNull().defaultRandom().primaryKey(),
   user_id: uuid("user_id").notNull(),
@@ -12,26 +13,40 @@ export const trades = pgTable("trades", {
   executed_at: timestamp("executed_at").notNull().defaultNow(),
 });
 
+type TradeRow = typeof trades.$inferSelect;
+
+function mapTrade(row: TradeRow): tradeType {
+  return {
+    id: row.id,
+    user_id: row.user_id,
+    quote_id: row.quote_id,
+    idempotency_key: row.idempotency_key,
+    executed_at: row.executed_at,
+  } as tradeType;
+}
+
 export async function recordTrade(
+  db: DbLike,
   user_id: string,
   quote_id: string,
   idempotency_key: string,
-){
-   await db
-    .insert(trades)
-    .values({
-      user_id,
-      quote_id,
-      idempotency_key,
-    })
+): Promise<void> {
+  await db.insert(trades).values({
+    user_id,
+    quote_id,
+    idempotency_key,
+  });
 }
 
-export async function getTradeByIdempotencyKey(idempotency_key: string): Promise<tradeType> {
-  const [trade] = await db
+export async function getTradeByIdempotencyKey(
+  db: DbLike,
+  idempotency_key: string,
+): Promise<tradeType | null> {
+  const [row] = await db
     .select()
     .from(trades)
     .where(eq(trades.idempotency_key, idempotency_key))
-    .limit(1)
-    .execute();
-  return trade;
+    .limit(1);
+
+  return row ? mapTrade(row) : null;
 }

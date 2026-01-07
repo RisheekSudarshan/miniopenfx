@@ -1,5 +1,5 @@
 import { getUserBalances } from "../models/balances.model";
-
-export async function getBalancebyUserService(userId: string) {
-  return await getUserBalances(userId);
+import { DbLike } from "../types/types";
+export async function getBalancebyUserService(db: DbLike, userId: string) {
+  return await getUserBalances(db, userId);
 }

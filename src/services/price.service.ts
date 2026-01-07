@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import type { PriceEntry } from "../types/types.js";
 
 const CACHE_TTL_MS = 3000;

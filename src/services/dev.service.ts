@@ -1,29 +1,31 @@
 import { createLedgerEntry } from "../models/ledger_entries.model";
 import { getUserById } from "../models/users.model";
-import { db } from "../database/client.js";
 import { upsertBalance } from "../models/balances.model";
 import { ErrorCode } from "../errors/error_codes";
+import { DbLike } from "../types/types";
 
 export async function devAddMoneyService(
+  db:DbLike,
   reciverId: string,
   currency: string,
   amount: number,
   userId: string
 ): Promise<string> {
-  const user = await getUserById(userId);
+  const user = await getUserById(db, userId);
+  if (user === null){
+    throw new Error(ErrorCode.UNAUTHORIZED)
+  }
   if (user.role != "admin") {
     throw new Error(ErrorCode.NO_PERMISSION);
   }
   const reason: string = "Credit";
-  await createLedgerEntry({
+  await createLedgerEntry(db, {
     userId: userId,
     currency: currency,
     delta: amount,
     reason: reason,
     receiverId: reciverId,
   });
-  await db.transaction(async (tx) => {
-    await upsertBalance(tx, reciverId, currency, amount);
-  });
+  await upsertBalance(db, reciverId, currency, amount);
   return "Credited!";
 }

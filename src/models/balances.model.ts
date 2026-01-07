@@ -1,28 +1,48 @@
-import { pgTable, decimal, text, uuid } from "drizzle-orm/pg-core";
-import { db } from "../database/client.js";
+import { pgTable, numeric, text, uuid, primaryKey } from "drizzle-orm/pg-core";
 import { eq, sql } from "drizzle-orm";
-import { userBalanceType } from "../types/types.js";
+import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
+import type { userBalanceType } from "../types/types.js";
 
-export const balances = pgTable("balances", {
-  user_id: uuid("user_id").notNull().primaryKey(),
-  currency: text("currency").notNull(),
-  amount: decimal("amount", {
-    precision: 18,
-    scale: 8,
-    mode: "number",
-  }).notNull(),
-});
+// ---- Table ----
+// balances should be uniquely identified by (user_id, currency)
+export const balances = pgTable(
+  "balances",
+  {
+    user_id: uuid("user_id").notNull(),
+    currency: text("currency").notNull(),
+    // Use numeric/decimal as string to avoid precision loss
+    amount: numeric("amount", { precision: 18, scale: 8 }).notNull(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.user_id, t.currency] }),
+  }),
+);
 
-export async function getUserBalances(userId: string): Promise<userBalanceType[]> {
-  const userBalances: userBalanceType[] = await db
+
+type DbLike = NeonHttpDatabase<any>;
+
+function mapBalance(row: typeof balances.$inferSelect): userBalanceType {
+  return {
+    ...row,
+    amount: typeof row.amount === "string" ? Number(row.amount) : (row.amount as any),
+  } as userBalanceType;
+}
+
+// ---- Queries ----
+export async function getUserBalances(
+  db: DbLike,
+  userId: string,
+): Promise<userBalanceType[]> {
+  const rows = await db
     .select()
     .from(balances)
     .where(eq(balances.user_id, userId));
-  return userBalances;
+
+  return rows.map(mapBalance);
 }
 
 export async function upsertBalance(
-  tx: any,
+  tx: DbLike,
   user_id: string,
   currency: string,
   delta: number,
@@ -30,14 +50,17 @@ export async function upsertBalance(
   await tx
     .insert(balances)
     .values({
-      user_id:user_id,
+      user_id,
       currency,
-      amount: delta,
+      // numeric column expects string-ish; passing number often works,
+      // but string is safer and consistent
+      amount: String(delta),
     })
     .onConflictDoUpdate({
       target: [balances.user_id, balances.currency],
       set: {
+        // add delta to existing amount
         amount: sql`${balances.amount} + ${delta}`,
       },
-    })
+    });
 }

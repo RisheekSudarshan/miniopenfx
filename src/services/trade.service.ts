@@ -2,11 +2,11 @@ import { createLedgerEntry } from "../models/ledger_entries.model.js";
 import { getUserBalances, upsertBalance } from "../models/balances.model.js";
 import { recordTrade, getTradeByIdempotencyKey } from "../models/trades.model.js";
 import { getQuoteById, expireQuote } from "../models/quotes.model.js";
-import { db } from "../database/client.js";
 import { ErrorCode } from "../errors/error_codes.js";
-import { quoteType, tradeType, userBalanceType } from "../types/types.js";
+import { DbLike, quoteType, tradeType, userBalanceType } from "../types/types.js";
 
 export async function trade(
+  db:DbLike,
   senderId: string,
   receiverId: string,
   idempotencyKey: string | undefined,
@@ -14,13 +14,13 @@ export async function trade(
   amount: number,
 ): Promise<string> {
 
-  const dup: tradeType = await getTradeByIdempotencyKey(idempotencyKey!);
+  const dup: tradeType|null = await getTradeByIdempotencyKey(db, idempotencyKey!);
   if (dup !== undefined) {
     throw new Error(ErrorCode.DUPLICATE_TRADE)
   }
 
-  const q: quoteType = await getQuoteById(quoteId);
-  if (q === undefined || q.status !== "ACTIVE") {
+  const q: quoteType|null  = await getQuoteById(db, quoteId);
+  if (q === undefined || q === null|| q.status !== "ACTIVE") {
     throw new Error(ErrorCode.INVALID_QUOTE);
   }
 
@@ -33,7 +33,7 @@ export async function trade(
   const quoteCur: string = quote.pair.slice(3);
   const quoteAmt: number = amount * quote.rate;
 
-  const res: userBalanceType[] = await getUserBalances(senderId).then((balances) => {
+  const res: userBalanceType[] = await getUserBalances(db, senderId).then((balances) => {
     return balances.filter((b) => b.currency === base);
   });
   if(res === undefined){
@@ -44,14 +44,14 @@ export async function trade(
     throw new Error(ErrorCode.INSUFFICIENT_BALANCE);
   }
 
-  await createLedgerEntry({
+  await createLedgerEntry(db, {
     userId: senderId,
     currency: base,
     delta: -amount,
     reason: "FX_TRADE",
     receiverId: receiverId
   });
-  await createLedgerEntry({
+  await createLedgerEntry(db, {
     userId: receiverId,
     currency: quoteCur,
     delta: quoteAmt,
@@ -59,12 +59,10 @@ export async function trade(
     receiverId: senderId
   });
 
-  await db.transaction(async (tx) => {
-    await upsertBalance(tx, senderId, base, -amount);
-    await upsertBalance(tx, receiverId, quoteCur, quoteAmt);
-    await recordTrade(senderId, quoteId, idempotencyKey!);
-    await expireQuote(quoteId);
-  });
+    await upsertBalance(db, senderId, base, -amount);
+    await upsertBalance(db, receiverId, quoteCur, quoteAmt);
+    await recordTrade(db, senderId, quoteId, idempotencyKey!);
+    await expireQuote(db, quoteId);
 
   return "Executed";
 }

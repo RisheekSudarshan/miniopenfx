@@ -1,3 +1,7 @@
+import { NeonHttpDatabase } from "drizzle-orm/neon-http";
+
+export type DbLike = NeonHttpDatabase<any>;
+
 export type Variables = {
   userId: string;
   userRole: string;
@@ -22,7 +26,7 @@ export type userBalanceType = {
   amount: number;
 };
 
-export type  LedgerEntryType = {
+export type LedgerEntryType = {
     id: string;
     user_id: string;
     currency: string;

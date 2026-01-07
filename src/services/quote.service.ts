@@ -1,12 +1,13 @@
 import { isFresh, refreshPrice, getPrice } from "./price.service.js";
 import { createQuote } from "../models/quotes.model.js";
 import { ErrorCode } from "../errors/error_codes.js";
-import { quoteType } from "../types/types.js";
+import { DbLike, quoteType } from "../types/types.js";
 
 const BUY_SPREAD: number = 0.0002;
 const SELL_SPREAD: number = 0.0002;
 
 export async function createQuoteService(
+  db: DbLike,
   userId: string,
   pair: string,
   side: "BUY" | "SELL",
@@ -22,7 +23,7 @@ export async function createQuoteService(
 
   const rate:number = side === "BUY" ? market * (1 + BUY_SPREAD) : market * (1 - SELL_SPREAD);
 
-  return await createQuote({
+  return await createQuote(db, {
     userId,
     pair,
     side,
