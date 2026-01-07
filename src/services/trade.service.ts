@@ -15,7 +15,7 @@ export async function trade(
 ): Promise<string> {
 
   const dup: tradeType|null = await getTradeByIdempotencyKey(db, idempotencyKey!);
-  if (dup !== undefined) {
+  if (dup !== null) {
     throw new Error(ErrorCode.DUPLICATE_TRADE)
   }
 
