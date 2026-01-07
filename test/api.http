@@ -70,7 +70,7 @@ Content-Type: application/json
 POST http://localhost:3000/trades/others
 Authorization: Bearer {{token}}
 Idempotency-key: {{quoteid}}
-Content-Type: application/application/json
+Content-Type: application/json
 
 {
   "quoteId": "{{quoteid}}",
@@ -90,7 +90,7 @@ Authorization: Bearer {{token}}
 {
   "currency": "USD",
   "amount": 100,
-  "reciverId": "{{user}}"
+  "reciverId": "{{reciever}}"
 }
 
 ### Get history

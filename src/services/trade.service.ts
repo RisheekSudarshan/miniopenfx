@@ -25,7 +25,7 @@ export async function trade(
   }
 
   if (new Date(q.expires_at) < new Date()) {
-    throw new Error("QUOTE_EXPIRED");
+    throw new Error(ErrorCode.QUOTE_EXPIRED);
   }
 
   const quote: quoteType = q;
@@ -36,9 +36,12 @@ export async function trade(
   const res: userBalanceType[] = await getUserBalances(senderId).then((balances) => {
     return balances.filter((b) => b.currency === base);
   });
+  if(res === undefined){
+    throw new Error(ErrorCode.INSUFFICIENT_BALANCE);
+  }
 
   if (res[0].amount < amount) {
-    throw new Error(ErrorCode.INSUFFICIENT_BALANCE)
+    throw new Error(ErrorCode.INSUFFICIENT_BALANCE);
   }
 
   await createLedgerEntry({

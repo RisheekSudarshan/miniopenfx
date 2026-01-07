@@ -2,7 +2,7 @@ import { createLedgerEntry } from "../models/ledger_entries.model";
 import { getUserById } from "../models/users.model";
 import { db } from "../database/client.js";
 import { upsertBalance } from "../models/balances.model";
-import { deflate } from "zlib";
+import { ErrorCode } from "../errors/error_codes";
 
 export async function devAddMoneyService(
   reciverId: string,
@@ -12,7 +12,7 @@ export async function devAddMoneyService(
 ): Promise<string> {
   const user = await getUserById(userId);
   if (user.role != "admin") {
-    throw new Error("NO_PERMISSION");
+    throw new Error(ErrorCode.NO_PERMISSION);
   }
   const reason: string = "Credit";
   await createLedgerEntry({

@@ -4,6 +4,7 @@ on: [push]
 jobs:
   check-bats-version:
     runs-on: ubuntu-latest
+    environment: .env
     steps:
       - uses: actions/checkout@v4
       - name: Build & Deploy Worker
