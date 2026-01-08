@@ -30,6 +30,7 @@ export async function refreshPrice(pair: string, pricecache:KVNamespace): Promis
 }
 
 export async function isFresh(pair: string, pricecache:KVNamespace): Promise<boolean> {
+  console.log("isfresh", pair)
   const entry: PriceEntry|null = await getPrice(pair, pricecache);
   if (!entry) return false;
   return Date.now() - entry.ts < CACHE_TTL_MS;
@@ -37,7 +38,7 @@ export async function isFresh(pair: string, pricecache:KVNamespace): Promise<boo
 
 export async function getPrice(pair: string, pricecache:KVNamespace): Promise<PriceEntry | null> {
     const raw = await pricecache.get(pair);
-
+  console.log("getPrice", raw)
   if (!raw) return null;
 
   const retValue = JSON.parse(raw) as {
@@ -53,6 +54,7 @@ export async function setPrice(pair: string, rate: number, pricecache:KVNamespac
       rate,
       ts: Date.now(),
     };
+    console.log("setprice", payload);
 
     await pricecache.put(pair, JSON.stringify(payload));
 
