@@ -25,6 +25,7 @@ export async function refreshPrice(pair: string, pricecache:KVNamespace): Promis
 
   const rate: number = data["tether"][quotecur] / data["tether"][basecur];
   await setPrice(pair, rate, pricecache);
+  console.log(rate)
   return rate;
 }
 
