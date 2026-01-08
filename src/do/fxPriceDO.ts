@@ -109,16 +109,10 @@ export class FxPricesDO {
       .filter(Boolean);
 
     await this.ensureConnected(symbols);
-
+    
     const out: Record<string, Quote | null> = {};
-    for (const s of symbols){
-        if(this.prices[s]){
-            out[s] = this.prices[s];
-        }
-        else{
-            return this.fetch(req);
-        }
-    }
+    for (const s of symbols) out[s] = this.prices[s] ?? null;
+
     return new Response(JSON.stringify(out), {
       headers: { "content-type": "application/json" },
     });
