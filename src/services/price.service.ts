@@ -33,6 +33,7 @@ export async function isFresh(pair: string, pricecache:KVNamespace): Promise<boo
   console.log("isfresh", pair)
   const entry: PriceEntry|null = await getPrice(pair, pricecache);
   if (!entry) return false;
+  console.log(false);
   return Date.now() - entry.ts < CACHE_TTL_MS;
 }
 
