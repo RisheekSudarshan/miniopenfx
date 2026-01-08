@@ -24,3 +24,7 @@ invocation_logs = true
 enabled = false
 persist = true
 head_sampling_rate = 1
+
+[[kv_namespaces]]
+binding = "pricecache"
+id = "b4f68db09abb4d81a08997336695765b"

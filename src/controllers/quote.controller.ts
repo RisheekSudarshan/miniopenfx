@@ -9,6 +9,6 @@ export async function quoteController(c: Context) {
   const { pair, side } = await c.req.json();
 
   const db: DbLike = createDb(c.env.DATABASE_URL);
-  const quote = await createQuoteService(db, userId, pair, side);
+  const quote = await createQuoteService(db, userId, pair, side, c.env.pricecache);
   return success(c, quote, 201);
 }

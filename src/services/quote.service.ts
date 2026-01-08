@@ -2,6 +2,7 @@ import { isFresh, refreshPrice, getPrice } from "./price.service.js";
 import { createQuote } from "../models/quotes.model.js";
 import { ErrorCode } from "../errors/error_codes.js";
 import { DbLike, quoteType } from "../types/types.js";
+import type { PriceEntry } from "../types/types.js";
 
 const BUY_SPREAD: number = 0.0002;
 const SELL_SPREAD: number = 0.0002;
@@ -11,16 +12,16 @@ export async function createQuoteService(
   userId: string,
   pair: string,
   side: "BUY" | "SELL",
+  priceCache: KVNamespace
 ): Promise<quoteType> {
-  if (!isFresh(pair)) {
-    await refreshPrice(pair);
+  if (!isFresh(pair, priceCache)) {
+    await refreshPrice(pair, priceCache);
   }
-
-  const market: number | null = getPrice(pair);
-  if (market === null) {
+  const price: PriceEntry | null = await getPrice(pair, priceCache);
+  if (price === null) {
     throw new Error(ErrorCode.MARKET_PRICE_UNAVAILABLE);
   }
-
+  const market = price.rate;
   const rate: number =
     side === "BUY" ? market * (1 + BUY_SPREAD) : market * (1 - SELL_SPREAD);
   let quote;

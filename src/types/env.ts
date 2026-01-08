@@ -3,4 +3,5 @@ export type EnvBindings = {
   JWT_SECRET: string;
   FX_DO: DurableObjectNamespace;
   COINGECKO_API_KEY?: string;
+  pricecache: KVNamespace;
 };

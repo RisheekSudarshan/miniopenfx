@@ -4,7 +4,7 @@ const CACHE_TTL_MS: number = 3000;
 
 const priceCache: Record<string, PriceEntry> = {};
 
-export async function refreshPrice(pair: string): Promise<number> {
+export async function refreshPrice(pair: string, pricecache:KVNamespace): Promise<number> {
   const { base, quote } = parsePair(pair);
   const res: Response = await fetch(
     `https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=${base},${quote}`,
@@ -24,25 +24,37 @@ export async function refreshPrice(pair: string): Promise<number> {
   }
 
   const rate: number = data["tether"][quotecur] / data["tether"][basecur];
-  setPrice(pair, rate);
+  await setPrice(pair, rate, pricecache);
   return rate;
 }
 
-export function isFresh(pair: string): boolean {
-  const entry: PriceEntry = priceCache[pair];
+export async function isFresh(pair: string, pricecache:KVNamespace): Promise<boolean> {
+  const entry: PriceEntry|null = await getPrice(pair, pricecache);
   if (!entry) return false;
   return Date.now() - entry.ts < CACHE_TTL_MS;
 }
 
-export function getPrice(pair: string): number | null {
-  return priceCache[pair]?.rate ?? null;
+export async function getPrice(pair: string, pricecache:KVNamespace): Promise<PriceEntry | null> {
+    const raw = await pricecache.get(pair);
+
+  if (!raw) return null;
+
+  const retValue = JSON.parse(raw) as {
+    rate: number;
+    ts: number;
+  };
+  return retValue;
+
 }
 
-export function setPrice(pair: string, rate: number): void {
-  priceCache[pair] = {
-    rate,
-    ts: Date.now(),
-  };
+export async function setPrice(pair: string, rate: number, pricecache:KVNamespace): Promise<void> {
+      const payload = {
+      rate,
+      ts: Date.now(),
+    };
+
+    await pricecache.put(pair, JSON.stringify(payload));
+
 }
 
 function parsePair(pair: string): { base: string; quote: string } {
