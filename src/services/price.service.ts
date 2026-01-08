@@ -1,6 +1,6 @@
 import type { PriceEntry } from "../types/types.js";
 
-const CACHE_TTL_MS: number = 30000;
+const CACHE_TTL_MS: number = 60000;
 
 const priceCache: Record<string, PriceEntry> = {};
 
