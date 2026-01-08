@@ -1,4 +1,3 @@
-import { authMiddleware } from "../../middleware/auth.js";
 import { devAddMoneyController } from "../../controllers/dev.controller.js";
 import { createApp } from "../../app.js";
 

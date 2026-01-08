@@ -9,6 +9,8 @@ import tradeRoutes from "./routes/trades/routes.js";
 import balanceRoutes from "./routes/balances/routes.js";
 import devRoutes from "./routes/dev/routes.js";
 import historyRoutes from "./routes/history/routes.js";
+import priceRoutes from "./routes/price/routes.js"
+
 
 const app = createApp();
 
@@ -20,27 +22,6 @@ app.route("/trades", tradeRoutes);
 app.route("/balances", balanceRoutes);
 app.route("/dev", devRoutes);
 app.route("/history", historyRoutes);
-
-app.get("/fx", async (c) => {
-  const symbols = (c.req.query("symbols") ?? "EURUSDT").toUpperCase();
-
-  const id = c.env.FX_DO.idFromName("binance-fx");
-  const stub = c.env.FX_DO.get(id);
-  const binanceRes = await stub.fetch(`https://do.local/?symbols=${symbols}`);
-  const binance = await binanceRes.json();
-
-  const cgUrl = new URL("https://api.coingecko.com/api/v3/simple/price");
-  cgUrl.searchParams.set("ids", "tether");
-  cgUrl.searchParams.set("vs_currencies", "eur,gbp,usd");
-  cgUrl.searchParams.set("include_last_updated_at", "true");
-
-  const headers: Record<string, string> = { accept: "application/json" };
-  if (c.env.COINGECKO_API_KEY) headers["x-cg-pro-api-key"] = c.env.COINGECKO_API_KEY;
-
-  const cgRes = await fetch(cgUrl.toString(), { headers });
-  const coingecko = await cgRes.json(); 
-
-  return c.json({ symbols, binance, coingecko });
-});
+app.route("/price", priceRoutes)
 
 export default app;

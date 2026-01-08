@@ -8,7 +8,6 @@ export class FxPricesDO {
   ws?: WebSocket;
   prices: Record<string, Quote> = {};
 
-  // Keep track of what we’re currently subscribed to
   private subscribedSymbolsKey = "";
   private reconnecting = false;
 
@@ -19,14 +18,12 @@ export class FxPricesDO {
 
   private buildUrl(symbols: string[]) {
     const streams = symbols.map((s) => `${s.toLowerCase()}@bookTicker`).join("/");
-    // Encode streams for safety
     return `wss://stream.binance.com:9443/stream?streams=${encodeURIComponent(streams)}`;
   }
 
   async ensureConnected(symbols: string[]) {
     const key = symbols.map((s) => s.toUpperCase()).sort().join(",");
 
-    // If we’re already connected/connecting to the same set of streams, do nothing
     if (
       this.ws &&
       (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING) &&
@@ -35,7 +32,6 @@ export class FxPricesDO {
       return;
     }
 
-    // If symbols changed, close old socket and reconnect
     if (this.ws) {
       try { this.ws.close(1000, "resubscribe"); } catch {}
       this.ws = undefined;
@@ -48,18 +44,15 @@ export class FxPricesDO {
     this.ws = ws;
 
     ws.addEventListener("open", () => {
-      // Optional: schedule periodic alarms so DO wakes up and can self-heal
-      // (Helpful if you want the upstream to stay alive without constant HTTP traffic)
       this.state.storage.setAlarm(Date.now() + 30_000).catch(() => {});
     });
 
     ws.addEventListener("message", (evt) => {
       const msg = JSON.parse(String(evt.data));
 
-      // Combined streams wrapper: { stream: "...", data: {...} } :contentReference[oaicite:3]{index=3}
       const data = msg.data ?? msg;
 
-      const sym = String(data.s);     // "EURUSDT" (Binance sends uppercase in payload)
+      const sym = String(data.s);
       const bid = String(data.b);
       const ask = String(data.a);
       const mid = (Number(bid) + Number(ask)) / 2;
@@ -83,16 +76,14 @@ export class FxPricesDO {
     if (this.reconnecting) return;
     this.reconnecting = true;
 
-    // simple backoff
     const delayMs = 1000;
 
-    // Use alarm instead of setTimeout for DO
+  
     this.state.storage.setAlarm(Date.now() + delayMs).catch(() => {});
-    // store symbols we want to reconnect to (in memory is fine for this)
     this.subscribedSymbolsKey = symbols.map((s) => s.toUpperCase()).sort().join(",");
   }
 
-  // Alarm handler: used for keepalive + reconnects
+
   async alarm() {
     this.reconnecting = false;
 
@@ -100,12 +91,10 @@ export class FxPricesDO {
       ? this.subscribedSymbolsKey.split(",").filter(Boolean)
       : ["EURUSDT"];
 
-    // If socket is missing/closed, reconnect
     if (!this.ws || this.ws.readyState === WebSocket.CLOSED) {
       await this.ensureConnected(symbols);
     }
 
-    // Keep waking up periodically while connected to self-heal
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       await this.state.storage.setAlarm(Date.now() + 30_000);
     }

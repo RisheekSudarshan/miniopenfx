@@ -55,3 +55,26 @@ function parsePair(pair: string): { base: string; quote: string } {
     quote: symbol.slice(3).toLowerCase(),
   };
 }
+
+export async function getPriceMultiple(bookTicker:string|undefined, stub:any){
+  var symbols = bookTicker
+  var binance = {"binance":"None"};
+  if(symbols !== undefined){
+    symbols = symbols.toUpperCase();
+    
+    const binanceRes = await stub.fetch(`https://do.local/?symbols=${symbols}`);
+    binance = await binanceRes.json();
+  }
+
+  const cgUrl = new URL("https://api.coingecko.com/api/v3/simple/price");
+  cgUrl.searchParams.set("ids", "tether");
+  cgUrl.searchParams.set("vs_currencies", "eur,gbp,usd");
+  cgUrl.searchParams.set("include_last_updated_at", "true");
+
+  const headers: Record<string, string> = { accept: "application/json" };
+
+  const cgRes = await fetch(cgUrl.toString(), { headers });
+  const coingecko = await cgRes.json(); 
+
+  return { symbols, binance, coingecko };
+}
