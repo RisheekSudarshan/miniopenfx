@@ -50,7 +50,7 @@ export class FxPricesDO {
     ws.addEventListener("open", () => {
       // Optional: schedule periodic alarms so DO wakes up and can self-heal
       // (Helpful if you want the upstream to stay alive without constant HTTP traffic)
-      this.state.setAlarm(Date.now() + 30_000).catch(() => {});
+      this.state.storage.setAlarm(Date.now() + 30_000).catch(() => {});
     });
 
     ws.addEventListener("message", (evt) => {
@@ -87,7 +87,7 @@ export class FxPricesDO {
     const delayMs = 1000;
 
     // Use alarm instead of setTimeout for DO
-    this.state.setAlarm(Date.now() + delayMs).catch(() => {});
+    this.state.storage.setAlarm(Date.now() + delayMs).catch(() => {});
     // store symbols we want to reconnect to (in memory is fine for this)
     this.subscribedSymbolsKey = symbols.map((s) => s.toUpperCase()).sort().join(",");
   }
@@ -107,7 +107,7 @@ export class FxPricesDO {
 
     // Keep waking up periodically while connected to self-heal
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      await this.state.setAlarm(Date.now() + 30_000);
+      await this.state.storage.setAlarm(Date.now() + 30_000);
     }
   }
 
