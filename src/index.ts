@@ -24,13 +24,11 @@ app.route("/history", historyRoutes);
 app.get("/fx", async (c) => {
   const symbols = (c.req.query("symbols") ?? "EURUSDT").toUpperCase();
 
-  // 1) Binance (from DO)
   const id = c.env.FX_DO.idFromName("binance-fx");
   const stub = c.env.FX_DO.get(id);
   const binanceRes = await stub.fetch(`https://do.local/?symbols=${symbols}`);
   const binance = await binanceRes.json();
 
-  // 2) CoinGecko (fallback/reference) — example uses tether pricing
   const cgUrl = new URL("https://api.coingecko.com/api/v3/simple/price");
   cgUrl.searchParams.set("ids", "tether");
   cgUrl.searchParams.set("vs_currencies", "eur,gbp,usd");
@@ -40,7 +38,7 @@ app.get("/fx", async (c) => {
   if (c.env.COINGECKO_API_KEY) headers["x-cg-pro-api-key"] = c.env.COINGECKO_API_KEY;
 
   const cgRes = await fetch(cgUrl.toString(), { headers });
-  const coingecko = await cgRes.json(); // per /simple/price :contentReference[oaicite:6]{index=6}
+  const coingecko = await cgRes.json(); 
 
   return c.json({ symbols, binance, coingecko });
 });

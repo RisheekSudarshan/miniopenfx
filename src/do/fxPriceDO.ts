@@ -17,7 +17,7 @@ export class FxPricesDO {
     if (this.ws && this.ws.readyState === 1) return;
 
     const streams = symbols.map((s) => `${s.toLowerCase()}@bookTicker`).join("/");
-    const url = `wss://stream.binance.com:9443/stream?streams=${streams}`;
+    const url = `wss://stream.binance.com:9443/ws/usdcusdt@depth@100ms`;
 
     this.ws = new WebSocket(url);
 
