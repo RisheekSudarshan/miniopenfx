@@ -115,9 +115,6 @@ export class FxPricesDO {
         if(this.prices[s]){
             out[s] = this.prices[s];
         }
-        else{
-            return this.fetch(req);
-        }
     }
     return out;
 }
