@@ -47,12 +47,12 @@ export async function refreshPrice(pair: string, pricecache:KVNamespace, stub: a
 
   let binanceQuote;
 
-  if(quotecur === "USD"){
+  if(quotecur.toUpperCase() === "USD"){
     binanceQuote = 1;
   }
   else{
-    const {binance} = ((await getPriceMultiple(quotecur+"USDT", stub)));
-    const cur = quotecur + "USDT";
+    const {binance} = ((await getPriceMultiple(quotecur.toUpperCase()+"USDT", stub)));
+    const cur = quotecur.toUpperCase() + "USDT";
     if(binance[cur] === null ||binance[cur] === undefined){
       binancebool = false;
       console.log("Issue with binance", binance, cur, binance[cur]);
