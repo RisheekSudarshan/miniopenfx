@@ -18,8 +18,8 @@ export async function createQuoteService(
   stub:any,
   log: Logger
 ): Promise<quoteType> {
-  if (!await isFresh(pair, priceCache)) {
-    await refreshPrice(pair, priceCache, stub);
+  if (!await isFresh(pair, priceCache, log)) {
+    await refreshPrice(pair, priceCache, stub, log);
   }
   const price: PriceEntry | null = await getPrice(pair, priceCache);
   if (price === null) {

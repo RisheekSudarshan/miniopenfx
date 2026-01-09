@@ -45,6 +45,16 @@ describe("MiniOpenFX API", () => {
     quoteId = body.data.id;
   });
   it("Self trade", async() => {
-    const res = await fetch(`${BASE_URL}/selftrade`)
+    const res = await fetch(`${BASE_URL}/trades`,{
+      method: "POST",
+      headers:{
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+        body: JSON.stringify({
+          quoteId: quoteId,
+        }),
+    })
+    expect(res.status).toBe(201);
   })
 });
