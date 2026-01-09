@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 
 const BASE_URL = process.env.API_BASE_URL!;
 
-describe("MiniOpenFX API – deployed", () => {
+describe("MiniOpenFX API", () => {
   let token: string;
   let quoteId: string;
 
@@ -44,4 +44,7 @@ describe("MiniOpenFX API – deployed", () => {
     const body = await res.json();
     quoteId = body.data.id;
   });
+  it("Self trade", async() => {
+    const res = await fetch(`${BASE_URL}/selftrade`)
+  })
 });

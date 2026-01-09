@@ -1,12 +1,10 @@
 import { createApp } from "../../app.js";
 import {
-  selfTradeController,
-  otherTradeController,
+  TradeController
 } from "../../controllers/trade.controller.js";
 
 const app = createApp();
 
-app.post("/self", selfTradeController);
-app.post("/others", otherTradeController);
+app.post("/", TradeController);
 
 export default app;

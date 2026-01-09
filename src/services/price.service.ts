@@ -34,14 +34,14 @@ export async function refreshPrice(pair: string, pricecache:KVNamespace, stub: a
     binanceBase=1;
   }
   else{
-    const {binance} = ((await getPriceMultiple("USDT"+basecur, stub, log)));
+    const {binance} = ((await getPriceMultiple(basecur+"USDT", stub, log)));
     const cur = "USDT" + basecur;
     if(binance[cur] === null ||binance[cur] === undefined){
       binancebool = false;
       log.info("Issue with binance");
     }
     else{
-      binanceBase = Number(binance[cur].mid);
+      binanceBase = 1 / Number(binance[cur].mid);
     }
   }
 
