@@ -1,12 +1,12 @@
 import { createLedgerEntry } from "../models/ledger_entries.model";
-import { getUserById } from "../models/users.model";
+import { getUserByEmail, getUserById } from "../models/users.model";
 import { upsertBalance } from "../models/balances.model";
 import { ErrorCode } from "../errors/error_codes";
 import { DbLike, userType } from "../types/types";
 
 export async function devAddMoneyService(
   db: DbLike,
-  reciverId: string,
+  reciverEmail: string,
   currency: string,
   amount: number,
   userId: string,
@@ -25,6 +25,18 @@ export async function devAddMoneyService(
     throw new Error(ErrorCode.NO_PERMISSION);
   }
   const reason: string = "Credit";
+  let reciver: userType| null;
+  try{
+    reciver = await getUserByEmail(db, reciverEmail);
+    if(reciver === null){
+      throw new Error(ErrorCode.USER_DOESNT_EXIST);
+    }
+  }
+  catch(e){
+    console.log(e);
+    throw new Error(ErrorCode.DB_ERROR);
+  }
+  const reciverId = reciver.id
   try {
     await createLedgerEntry(db, {
       userId: userId,

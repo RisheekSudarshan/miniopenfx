@@ -125,4 +125,12 @@ export const ERROR_RESPONSE_MAP: Record<
       message: "DB Error",
     },
   },
+
+  [ErrorCode.ASSERTION_ERROR]: {
+    status: HttpStatus.DUMB_USER,
+    body: {
+      success: false,
+      message: "DB Error",
+    },
+  },
 };

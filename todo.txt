@@ -13,6 +13,7 @@ handle null returns from the database model
 create a good idempotency key
 detect all the possible breaks
 add readme
+add type locks for zod variables;
 
 
 

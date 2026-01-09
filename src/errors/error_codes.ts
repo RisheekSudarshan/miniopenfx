@@ -1,3 +1,5 @@
+import { AssertionError } from "assert";
+
 export const ErrorCode = {
   NO_PERMISSION: "NO_PERMISSION",
   NOT_FOUND: "NOT_FOUND",
@@ -14,6 +16,7 @@ export const ErrorCode = {
   USER_DOESNT_EXIST: "USER_DOESNT_EXIST",
   JWT_RETURNED_STRING: "JWT_RETURNED_STRING",
   DB_ERROR: "DB_ERROR",
+  ASSERTION_ERROR: "ASSERTION_ERROR",
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];

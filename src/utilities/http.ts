@@ -6,4 +6,5 @@ export enum HttpStatus {
   CONFLICT = 409,
   INTERNAL_SERVER_ERROR = 500,
   DB_ERROR = 502,
+  DUMB_USER = 406,
 }
