@@ -1,17 +1,22 @@
+import { ErrorCode } from "../errors/error_codes.js";
 import type { PriceEntry } from "../types/types.js";
 
 const CACHE_TTL_MS: number = 60000;
 
 const priceCache: Record<string, PriceEntry> = {};
 
-export async function refreshPrice(pair: string, pricecache:KVNamespace): Promise<number> {
+export async function refreshPrice(pair: string, pricecache:KVNamespace, stub: any): Promise<number> {
   const { base, quote } = parsePair(pair);
+  var coinGeko:boolean = true;
+  var binancebool: boolean = true;
   const res: Response = await fetch(
     `https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=${base},${quote}`,
   );
   const data: any = await res.json();
   if (!res.ok) {
-    throw new Error(`CoinGecko API error: ${data?.error || res.statusText}`);
+    coinGeko = false
+    // throw new Error(`CoinGecko API error: ${data?.error || res.statusText}`);
+    console.log(`CoinGecko API error: ${data?.error || res.statusText}`);
   }
   const basecur: string = base.toLocaleLowerCase();
   const quotecur: string = quote.toLocaleLowerCase();
@@ -20,10 +25,58 @@ export async function refreshPrice(pair: string, pricecache:KVNamespace): Promis
     typeof data.tether[basecur] !== "number" ||
     typeof data.tether[quotecur] !== "number"
   ) {
-    throw new Error("Invalid CoinGecko response");
+    coinGeko = false;
+    // throw new Error("Invalid CoinGecko response");
+    console.log("Invalid CoinGecko response");
+  }
+  let binanceBase: number;
+  if(basecur === "USD"){
+    binanceBase=1;
+  }
+  else{
+    const {binance} = ((await getPriceMultiple("USDT"+basecur, stub)));
+    const cur = "USDT" + basecur;
+    if(binance[cur] === null ||binance[cur] === undefined){
+      binancebool = false;
+      console.log("Issue with binance");
+    }
+    else{
+      binanceBase = Number(binance[cur].mid);
+    }
   }
 
-  const rate: number = data["tether"][quotecur] / data["tether"][basecur];
+  let binanceQuote;
+
+  if(quotecur === "USD"){
+    binanceQuote = 1;
+  }
+  else{
+    const {binance} = ((await getPriceMultiple(quotecur+"USDT", stub)));
+    const cur = quotecur + "USDT";
+    if(binance[cur] === null ||binance[cur] === undefined){
+      binancebool = false;
+      console.log("Issue with binance");
+    }
+    else{
+      binanceQuote = Number(binance[cur].mid);
+    }
+  }
+  let rate;
+  if(binancebool && coinGeko){
+    const binancerate = binanceQuote!/binanceBase!;
+    const coingekkorate: number = data["tether"][quotecur] / data["tether"][basecur];
+    rate = binancerate>coingekkorate ? binancerate : coingekkorate;
+  }
+  else if(binancebool){
+    rate = binanceQuote!/binanceBase!;
+  }
+  else if(coinGeko){
+    rate = data["tether"][quotecur] / data["tether"][basecur];
+  }
+  else{
+    throw new Error();
+  }
+
   await setPrice(pair, rate, pricecache);
   console.log(rate)
   return rate;
@@ -79,7 +132,8 @@ export async function getPriceMultiple(
   stub: any,
 ) {
   let symbols = bookTicker;
-  let binance = { binance: "None" };
+  type BinanceQuote = { bid: string; ask: string; mid: string; ts: number };
+  let binance: Record<string, BinanceQuote | null> = {};
   if (symbols !== undefined) {
     symbols = symbols.toUpperCase();
 

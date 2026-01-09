@@ -8,6 +8,8 @@ import * as z from "zod";
 import { ErrorCode } from "../errors/error_codes.js";
 
 export async function quoteController(c: Context) {
+  const id = c.env.FX_DO.idFromName("binance-fx");
+  const stub = c.env.FX_DO.get(id);
   const input = c.get("userId");
   const safeinput = zuuid.safeParse(input);
   if(safeinput instanceof z.ZodError || safeinput.data === undefined){
@@ -17,6 +19,6 @@ export async function quoteController(c: Context) {
   const { pair, side } = await c.req.json();
 
   const db: DbLike = createDb(c.env.DATABASE_URL);
-  const quote:quoteType = await createQuoteService(db, userId, pair, side, c.env.pricecache);
+  const quote:quoteType = await createQuoteService(db, userId, pair, side, c.env.pricecache, stub);
   return success(c, quote, 201);
 }

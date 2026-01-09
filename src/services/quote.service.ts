@@ -12,11 +12,12 @@ export async function createQuoteService(
   userId: string,
   pair: string,
   side: "BUY" | "SELL",
-  priceCache: KVNamespace
+  priceCache: KVNamespace,
+  stub:any,
 ): Promise<quoteType> {
   if (!await isFresh(pair, priceCache)) {
     console.log("true");
-    await refreshPrice(pair, priceCache);
+    await refreshPrice(pair, priceCache, stub);
     console.log("true2");
   }
   const price: PriceEntry | null = await getPrice(pair, priceCache);
