@@ -50,7 +50,7 @@ export async function trade(
   const base: string = quote.pair.slice(0, 3);
   const quoteCur: string = quote.pair.slice(3);
   const quoteAmt: number = amount * quote.rate;
-  console.log(quoteAmt);;
+  console.log(quoteAmt);
   let res: userBalanceType[];
   try {
     res = await getUserBalances(db, senderId).then((balances) => {

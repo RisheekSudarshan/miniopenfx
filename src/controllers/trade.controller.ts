@@ -31,7 +31,8 @@ export async function selfTradeController(c: Context) {
   }
   const { quoteId } = safeinput.data;
 
-  const amount = Number(await getAmouontByQuote(db, quoteId));
+  const quote = (await getAmouontByQuote(db, quoteId))!;
+  const amount = quote.quote / quote.rate;
 
   await trade(db, userId, userId, idempotencyKey, quoteId, amount);
 
