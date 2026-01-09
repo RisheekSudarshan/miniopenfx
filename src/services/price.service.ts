@@ -63,12 +63,12 @@ export async function refreshPrice(pair: string, pricecache:KVNamespace, stub: a
   }
   let rate;
   if(binancebool && coinGeko){
-    const binancerate = binanceQuote!/binanceBase!;
+    const binancerate = binanceBase!/binanceQuote!;
     const coingekkorate: number = data["tether"][quotecur] / data["tether"][basecur];
     rate = binancerate>coingekkorate ? binancerate : coingekkorate;
   }
   else if(binancebool){
-    rate = binanceQuote!/binanceBase!;
+    rate = binanceBase!/binanceQuote!;
   }
   else if(coinGeko){
     rate = data["tether"][quotecur] / data["tether"][basecur];
