@@ -20,7 +20,7 @@ function mapTrade(row: TradeRow): tradeType {
     quote_id: row.quote_id,
     idempotency_key: row.idempotency_key,
     executed_at: row.executed_at,
-  } as tradeType;
+  };
 }
 
 export async function recordTrade(

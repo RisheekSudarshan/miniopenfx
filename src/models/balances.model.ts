@@ -1,5 +1,5 @@
 import { pgTable, numeric, text, uuid, primaryKey } from "drizzle-orm/pg-core";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, sum } from "drizzle-orm";
 import type { DbLike } from "../types/types.js";
 import type { userBalanceType } from "../types/types.js";
 
@@ -53,7 +53,7 @@ export async function upsertBalance(
     .onConflictDoUpdate({
       target: [balances.user_id, balances.currency],
       set: {
-        amount: sql`${balances.amount} + ${delta}`,
+        amount: sql`balances.amount + ${delta}`,
       },
     });
 }
