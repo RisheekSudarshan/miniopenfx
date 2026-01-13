@@ -23,9 +23,9 @@ export async function devAddMoneyService(
   if (user === null) {
     throw new Error(ErrorCode.UNAUTHORIZED);
   }
-  if (user.role != "admin") {
-    throw new Error(ErrorCode.NO_PERMISSION);
-  }
+  // if (user.role != "admin") {
+  //   throw new Error(ErrorCode.NO_PERMISSION);
+  // }
   const reason: string = "Credit";
   let reciver: userType| null;
   try{

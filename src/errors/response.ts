@@ -7,7 +7,7 @@ export const ERROR_RESPONSE_MAP: Record<
   { status: ContentfulStatusCode; body: { success: false; message: string } }
 > = {
   [ErrorCode.NO_PERMISSION]: {
-    status: 403,
+    status: HttpStatus.NO_PERMISSION,
     body: {
       success: false,
       message: "No permission. Login as admin.",
@@ -15,7 +15,7 @@ export const ERROR_RESPONSE_MAP: Record<
   },
 
   [ErrorCode.NOT_FOUND]: {
-    status: 404,
+    status: HttpStatus.NOT_FOUND,
     body: {
       success: false,
       message: "Resource not found.",
@@ -23,7 +23,7 @@ export const ERROR_RESPONSE_MAP: Record<
   },
 
   [ErrorCode.RESOURCE_ALREADY_EXISTS]: {
-    status: 500,
+    status: HttpStatus.CONFLICT,
     body: {
       success: false,
       message: "Resource already exists",
