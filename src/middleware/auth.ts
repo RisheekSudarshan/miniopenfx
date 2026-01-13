@@ -1,62 +1,45 @@
 import type { Context } from "hono";
-import type { Variables } from "../types/types.js";
+import type { DbLike, Variables } from "../types/types.js";
 import jwt from "jsonwebtoken";
-import { pool } from "../database/db.js";
+import { ErrorCode } from "../errors/error_codes.js";
+import { getUserById } from "../models/users.model.js";
+import { getSessionById } from "../models/sessions.model.js";
+import { publicRoutes } from "../utilities/publicRoutes.js";
+import { createDb } from "../database/client.js";
+import { EnvBindings } from "../types/env.js";
 
 export async function authMiddleware(
-  c: Context<{ Variables: Variables }>,
+  c: Context<{ Variables: Variables; Bindings: EnvBindings }>,
   next: () => Promise<void>,
 ) {
-  let auth = c.req.header("Authorization");
-  const incomingId =
-    c.req.header("x-request-id") || c.req.header("x-correlation-id");
+  const auth = c.req.header("Authorization");
+  const path = c.req.path;
+  if (publicRoutes.includes(path)) {
+    return next();
+  }
 
-  if (!auth)
-    return c.json(
-      // Token not present
-      {
-        success: false,
-        error: {
-          httpStatus: 401,
-          code: "AUTH_UNAUTHORIZED",
-          message: "Unauthorized 1",
-          requestId: incomingId,
-          details: {},
-        },
-      },
-      401,
-    );
-
+  if (!auth) throw new Error(ErrorCode.UNAUTHORIZED);
+  const db: DbLike = createDb(c.env.DATABASE_URL);
   const token = auth.replace("Bearer ", "").trim();
-  const payload:any = jwt.verify(token, process.env.JWT_SECRET!);
-
-  const res = await pool.query(
-    "SELECT 1 FROM sessions WHERE id=$1 AND expires_at > now()",
-    [payload.sessionId],
+  const payload: string | jwt.JwtPayload = jwt.verify(
+    token,
+    process.env.JWT_SECRET!,
   );
+  if (typeof payload === "string") {
+    throw new Error(ErrorCode.JWT_RETURNED_STRING);
+  }
 
-  const role = await pool.query("SELECT role FROM users WHERE id=$1", [
-    payload.userId,
-  ]);
+  const res = await getSessionById(db, payload.sessionId);
 
-  if (res.rowCount === 0)
-    return c.json(
-      //token expired
-      {
-        success: false,
-        error: {
-          httpStatus: 401,
-          code: "AUTH_TOKEN_EXPIRED",
-          message: "Session Expired",
-          requestId: incomingId,
-          details: {},
-        },
-      },
-      401,
-    );
+  const role = await getUserById(db, payload.userId);
+
+  if (res === undefined) throw new Error(ErrorCode.AUTH_TOKEN_EXPIRED);
 
   c.set("userId", payload.userId);
-  c.set("userRole", role.rows[0].role);
+  if (role === null) {
+    throw new Error(ErrorCode.UNAUTHORIZED);
+  }
+  c.set("userRole", role.role);
 
   await next();
 }

@@ -1,75 +1,99 @@
-import { pool } from "../database/db.js";
-import { TradeResult } from "../types/trades.js";
 import { createLedgerEntry } from "../models/ledger_entries.model.js";
 import { getUserBalances, upsertBalance } from "../models/balances.model.js";
 import {
   recordTrade,
   getTradeByIdempotencyKey,
 } from "../models/trades.model.js";
+import { getQuoteById, expireQuote } from "../models/quotes.model.js";
+import { ErrorCode } from "../errors/error_codes.js";
 import {
-  getQuoteById,
-  expireQuote,
-} from "../models/quotes.model.js";
-import { db } from "../database/client.js";
+  DbLike,
+  quoteType,
+  tradeType,
+  userBalanceType,
+} from "../types/types.js";
+import { Logger } from "pino";
 
 export async function trade(
+  db: DbLike,
   senderId: string,
   receiverId: string,
   idempotencyKey: string | undefined,
   quoteId: string,
   amount: number,
-): Promise<TradeResult> {
-  const client = await pool.connect();
-  await client.query("BEGIN");
-
-  const dup = await getTradeByIdempotencyKey(idempotencyKey!);
-  if (dup !== undefined) {
-    return TradeResult.DUPLICATED;
+  log:Logger
+): Promise<string> {
+  let dup: tradeType | null;
+  try {
+    dup = await getTradeByIdempotencyKey(db, idempotencyKey!);
+  } catch (e) {
+    log.info(e, "DB Error while getTradeByIdempotencyKey");
+    throw new Error(ErrorCode.DB_ERROR);
   }
-
-  const q = await getQuoteById(quoteId);
-  if (q === undefined || q.status !== "ACTIVE") {
-    throw new Error("INVALID_QUOTE");
+  if (dup !== null) {
+    throw new Error(ErrorCode.DUPLICATE_TRADE);
+  }
+  let q: quoteType | null;
+  try {
+    q = await getQuoteById(db, quoteId);
+  } catch (e) {
+    log.info(e, "DB Error while getQuoteById");
+    throw new Error(ErrorCode.DB_ERROR);
+  }
+  if (q === undefined || q === null || q.status !== "ACTIVE") {
+    throw new Error(ErrorCode.INVALID_QUOTE);
   }
 
   if (new Date(q.expires_at) < new Date()) {
-    throw new Error("QUOTE_EXPIRED");
+    throw new Error(ErrorCode.QUOTE_EXPIRED);
   }
 
-  const quote = q;
-  const base = quote.pair.slice(0, 3);
-  const quoteCur = quote.pair.slice(3);
-  const quoteAmt = amount * quote.rate;
-
-  const res = await getUserBalances(senderId).then((balances) => {
-    return balances.filter((b) => b.currency === base);
-  });
+  const quote: quoteType = q;
+  const base: string = quote.pair.slice(0, 3);
+  const quoteCur: string = quote.pair.slice(3);
+  const quoteAmt: number = amount * quote.rate;
+  console.log(quoteAmt);
+  let res: userBalanceType[];
+  try {
+    res = await getUserBalances(db, senderId).then((balances) => {
+      return balances.filter((b) => b.currency === base);
+    });
+    console.log(res)
+  } catch (e) {
+    console.log(e, "DB Error while getUserBalances");
+    throw new Error(ErrorCode.DB_ERROR);
+  }
+  if (res[0] === undefined) {
+    throw new Error(ErrorCode.INSUFFICIENT_BALANCE);
+  }
 
   if (res[0].amount < amount) {
-    return TradeResult.REJECTED;
+    throw new Error(ErrorCode.INSUFFICIENT_BALANCE);
   }
+  console.log(amount)
+  try {
+    await createLedgerEntry(db, {
+      userId: senderId,
+      currency: base,
+      delta: -amount,
+      reason: "FX_TRADE",
+      receiverId: receiverId,
+    });
+    await createLedgerEntry(db, {
+      userId: receiverId,
+      currency: quoteCur,
+      delta: quoteAmt,
+      reason: "FX_TRADE",
+      receiverId: senderId,
+    });
 
-  createLedgerEntry({
-    userId: senderId,
-    currency: base,
-    delta: -amount,
-    reason: "FX_TRADE",
-    receiverId: receiverId,
-  });
-  createLedgerEntry({
-    userId: receiverId,
-    currency: quoteCur,
-    delta: quoteAmt,
-    reason: "FX_TRADE",
-    receiverId: senderId,
-  });
-
-  await db.transaction(async (tx) => {
-    await upsertBalance(tx, senderId, base, -amount);
-    await upsertBalance(tx, receiverId, quoteCur, quoteAmt);
-    await recordTrade(senderId, quoteId, idempotencyKey!);
-    await expireQuote(quoteId);
-  });
-
-  return TradeResult.EXECUTED;
+    await upsertBalance(db, senderId, base, -amount);
+    await upsertBalance(db, receiverId, quoteCur, quoteAmt);
+    await recordTrade(db, senderId, quoteId, idempotencyKey!);
+    await expireQuote(db, quoteId);
+  } catch (e) {
+    console.log(e, "DB Error while Updating the ledger and balances");
+    throw new Error(ErrorCode.DB_ERROR);
+  }
+  return "Executed";
 }

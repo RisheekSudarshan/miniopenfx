@@ -7,8 +7,8 @@ POST http://localhost:3000/auth/signup
 Content-Type: application/json
 
 {
-  "email": "admin@admin.com",
-  "password": "admin123"
+  "email": "vscode1@test.com",
+  "password": "pass123"
 }
 
 
@@ -17,8 +17,8 @@ POST http://localhost:3000/auth/login
 Content-Type: application/json
 
 {
-  "email": "vscode@test.com",
-  "password": "pass123"
+  "email": "admin@admin.com",
+  "password": "admin123"
 }
 
 
@@ -26,10 +26,10 @@ Content-Type: application/json
 
 ### Replace token
 # user token
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlNjZkM2FiNi1lY2Q1LTRmZTctOTcxYS00ZWJlYmE0NTlmNWMiLCJzZXNzaW9uSWQiOiI4ZWEwMzZiNC03Nzc0LTRmODUtYWMwOS1lODY2MTZjOGE0YTMiLCJpYXQiOjE3Njc1OTM5MzgsImV4cCI6MTc2NzY4MDMzOH0.ji_8ETAEAkUNw1hxosT5locRoiwnVrCFEDDKqXaAV80
+#@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzNDNjZDExZi02MDExLTRkMWMtYmIwOC0wMDAwMjAzNDRmMmIiLCJzZXNzaW9uSWQiOiIzYWZkNzdmOS1mYWQ1LTRlYzgtODYxNC00MTQ2YTQxMWZmZDkiLCJpYXQiOjE3Njc2ODM0NzksImV4cCI6MTc2Nzc2OTg3OX0.520mOOU_BzQaRS-uQM1Nhia4sK1y4Tcu1VjpH6KG4p4
 
 # admin token
-#token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxNTkxZmE2YS0yNjJiLTQxMTctODdkNi1kYWIzYmJkOGE4MGEiLCJzZXNzaW9uSWQiOiJhM2M1MGU3ZS1jNDk0LTRlMGItOTBlMC0wOWRlYjc3NGY1ZjIiLCJpYXQiOjE3NjY5OTg2MzQsImV4cCI6MTc2NzA4NTAzNH0.jg1g32hkLfpUP9kodMoqOy3VEv4yRW5eMzv-Q8jFMpU
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NmVjMmUyZi1hN2QxLTRkMjgtOGZjNy1iY2IzNzQ3YTRlM2IiLCJzZXNzaW9uSWQiOiJjNTJjNmFmNi05MzZlLTRmZjYtOTE5Zi0zNjJjYjA1YjZjNzciLCJpYXQiOjE3Njc2OTg1NjcsImV4cCI6MTc2Nzc4NDk2N30.hVeTRaVGGDX0fexNuiILioX6FTVwfF1VPVBseykH64k
 
 ### Create Quote
 POST http://localhost:3000/quotes
@@ -43,7 +43,7 @@ Content-Type: application/json
 }
 
 ### Replace Quoteid
-@quoteid = 79d69d53-ddc7-4965-8b33-6a91565ff21a
+@quoteid = 5d47efa4-1834-4339-b3bb-0fe7ac979360
 ### Execute Self Trade
 POST http://localhost:3000/trades/self
 Authorization: Bearer {{token}}
@@ -60,17 +60,17 @@ Content-Type: application/json
 # @user = 64626faf-0bfd-493e-b830-3ec800e23344 
 # @user = a3d7e3f3-ae0b-4a3d-b6dc-54e32d0fa59d 
 # @user = e66d3ab6-ecd5-4fe7-971a-4ebeba459f5c 
- @user = bf6eed57-36b7-434e-a22d-a88291d52bff 
+ @user = 343cd11f-6011-4d1c-bb08-000020344f2b 
 
 # @reciever = 64626faf-0bfd-493e-b830-3ec800e23344 
 # @reciever = a3d7e3f3-ae0b-4a3d-b6dc-54e32d0fa59d 
-@reciever = e66d3ab6-ecd5-4fe7-971a-4ebeba459f5c 
+@reciever = 56ec2e2f-a7d1-4d28-8fc7-bcb3747a4e3b
 #@reciever = bf6eed57-36b7-434e-a22d-a88291d52bff 
 
 POST http://localhost:3000/trades/others
 Authorization: Bearer {{token}}
 Idempotency-key: {{quoteid}}
-Content-Type: application/application/json
+Content-Type: application/json
 
 {
   "quoteId": "{{quoteid}}",
@@ -90,7 +90,7 @@ Authorization: Bearer {{token}}
 {
   "currency": "USD",
   "amount": 100,
-  "reciverId": "{{user}}"
+  "reciverId": "{{reciever}}"
 }
 
 ### Get history

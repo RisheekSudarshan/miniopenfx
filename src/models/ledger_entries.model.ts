@@ -1,53 +1,71 @@
-import { pgTable, decimal, uuid, text, timestamp } from "drizzle-orm/pg-core";
-import { db } from "../database/client";
+import { pgTable, numeric, uuid, text, timestamp } from "drizzle-orm/pg-core";
+import type { DbLike } from "../types/types";
 import { eq } from "drizzle-orm";
+import type { LedgerEntryType } from "../types/types";
 
-export const legder_entries = pgTable("ledger_entries", {
+export const ledger_entries = pgTable("ledger_entries", {
   id: uuid("id").defaultRandom().primaryKey(),
   user_id: uuid("user_id").notNull(),
   currency: text("currency").notNull(),
-  delta: decimal("delta", {
-    precision: 18,
-    scale: 8,
-    mode: "number",
-  }).notNull(),
+
+  delta: numeric("delta", { precision: 18, scale: 8 }).notNull(),
+
   reason: text("reason").notNull(),
   created_at: timestamp("created_at").defaultNow().notNull(),
   receiver_id: uuid("receiver_id").notNull(),
 });
 
-export async function createLedgerEntry(data: {
-  userId: string;
-  currency: string;
-  delta: number;
-  reason: string;
-  receiverId: string;
-}) {
-  const [entry] = await db
-    .insert(legder_entries)
+type LedgerRow = typeof ledger_entries.$inferSelect;
+
+function mapEntry(row: LedgerRow): LedgerEntryType {
+  return {
+    id: row.id,
+    user_id: row.user_id,
+    currency: row.currency,
+    delta:
+      typeof row.delta === "string" ? Number(row.delta) : (row.delta as number),
+    reason: row.reason,
+    created_at: row.created_at,
+    receiver_id: row.receiver_id,
+  };
+}
+
+export async function createLedgerEntry(
+  db: DbLike,
+  data: {
+    userId: string;
+    currency: string;
+    delta: number;
+    reason: string;
+    receiverId: string;
+  },
+): Promise<LedgerEntryType> {
+  const [row] = await db
+    .insert(ledger_entries)
     .values({
       user_id: data.userId,
       currency: data.currency,
-      delta: data.delta,
+      delta: String(data.delta),
       reason: data.reason,
       receiver_id: data.receiverId,
     })
-    .returning({
-      id: legder_entries.id,
-      user_id: legder_entries.user_id,
-      currency: legder_entries.currency,
-      delta: legder_entries.delta,
-      reason: legder_entries.reason,
-      created_at: legder_entries.created_at,
-      receiver_id: legder_entries.receiver_id,
-    });
-  return entry;
+    .returning();
+
+  if (!row) {
+    throw new Error("Failed to create ledger entry");
+  }
+
+  return mapEntry(row);
 }
 
-export async function getLedgerEntriesByUserId(userId: string) {
-  const entries = await db
+export async function getLedgerEntriesByUserId(
+  db: DbLike,
+  userId: string,
+): Promise<LedgerEntryType[]> {
+  const rows = await db
     .select()
-    .from(legder_entries)
-    .where(eq(legder_entries.user_id, userId));
-  return entries;
+    .from(ledger_entries)
+    .where(eq(ledger_entries.user_id, userId));
+
+  return rows.map(mapEntry);
 }

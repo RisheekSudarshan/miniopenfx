@@ -1,4 +1,4 @@
-import { HttpStatus } from "../types/http.js";
+import { HttpStatus } from "./http.js";
 import { Context } from "hono";
 
 export function success(
@@ -6,11 +6,5 @@ export function success(
   data: unknown,
   status: HttpStatus = HttpStatus.OK,
 ) {
-  return c.json(
-    {
-      success: true,
-      data,
-    },
-    status,
-  );
+  return c.json({ success: true, data: data }, status);
 }

@@ -1,5 +1,7 @@
-import "dotenv/config";
-import { Hono } from "hono";
+
+import { createApp } from "./app.js";
+import { FxPricesDO } from "./do/fxPriceDO.js";
+export { FxPricesDO };
 
 import authRoutes from "./routes/auth/routes.js";
 import quoteRoutes from "./routes/quotes/routes.js";
@@ -7,8 +9,10 @@ import tradeRoutes from "./routes/trades/routes.js";
 import balanceRoutes from "./routes/balances/routes.js";
 import devRoutes from "./routes/dev/routes.js";
 import historyRoutes from "./routes/history/routes.js";
+import priceRoutes from "./routes/price/routes.js"
 
-const app = new Hono();
+
+const app = createApp();
 
 app.get("/health", (c) => c.json({ ok: true }));
 
@@ -18,5 +22,6 @@ app.route("/trades", tradeRoutes);
 app.route("/balances", balanceRoutes);
 app.route("/dev", devRoutes);
 app.route("/history", historyRoutes);
+app.route("/price", priceRoutes)
 
 export default app;

@@ -1,15 +1,10 @@
-import { Hono } from "hono";
-import { authMiddleware } from "../../middleware/auth.js";
+import { createApp } from "../../app.js";
 import {
-  selfTradeController,
-  otherTradeController,
+  TradeController
 } from "../../controllers/trade.controller.js";
 
-const app = new Hono();
+const app = createApp();
 
-app.use("*", authMiddleware);
-
-app.post("/self", selfTradeController);
-app.post("/others", otherTradeController);
+app.post("/", TradeController);
 
 export default app;

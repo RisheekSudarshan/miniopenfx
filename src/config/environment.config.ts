@@ -1,8 +1,8 @@
 // src/config/environment.ts
-import { config } from "dotenv";
+// import { config } from "dotenv";
 
-// Load environment variables
-config();
+// // Load environment variables
+// config();
 
 export const ENV = {
   PORT: process.env.PORT || 3000,

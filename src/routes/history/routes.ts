@@ -1,11 +1,8 @@
-import { Hono } from "hono";
-import { authMiddleware } from "../../middleware/auth.js";
-import type { Variables } from "../../types/types.js";
 import { historyController } from "../../controllers/history.controller.js";
+import { createApp } from "../../app.js";
 
-const app = new Hono<{ Variables: Variables }>();
+const app = createApp()
 
-app.use("*", authMiddleware);
 
 app.get("/", historyController);
 
