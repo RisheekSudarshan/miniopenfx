@@ -5,6 +5,7 @@ export type DbLike = NeonHttpDatabase<any>;
 export type Variables = {
   userId: string;
   userRole: string;
+  logger: any,
 };
 
 export type PriceEntry = {
